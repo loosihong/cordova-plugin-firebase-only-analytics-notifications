@@ -50,12 +50,13 @@
       </intent-filter>
     </config-file>
     <config-file target="AndroidManifest.xml" parent="/manifest/application">
-      <service android:name="org.apache.cordova.firebase.FirebasePluginMessagingService" android:stopWithTask="false">
+      <service android:name="org.apache.cordova.firebase.FirebasePluginMessagingService" android:exported="false" android:stopWithTask="false">
         <intent-filter>
           <action android:name="com.google.firebase.MESSAGING_EVENT"/>
         </intent-filter>
       </service>
-      <receiver android:name="org.apache.cordova.firebase.OnNotificationOpenReceiver"></receiver>
+      <receiver android:name="org.apache.cordova.firebase.OnNotificationOpenReceiver" />
+      <activity android:name="org.apache.cordova.firebase.OnNotificationOpenActivity" />
     </config-file>
     <config-file target="AndroidManifest.xml" parent="/manifest/application">
       <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="@string/default_notification_channel_id"/>
@@ -70,6 +71,8 @@
     <source-file src="src/android/FirebasePluginMessagingService.java" target-dir="src/org/apache/cordova/firebase" />
     <source-file src="src/android/FirebasePluginMessageReceiver.java" target-dir="src/org/apache/cordova/firebase" />
     <source-file src="src/android/FirebasePluginMessageReceiverManager.java" target-dir="src/org/apache/cordova/firebase" />
+
+    <source-file src="src/android/OnNotificationOpenActivity.java" target-dir="src/org/apache/cordova/firebase" />
 
     <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
     <framework src="com.google.gms:google-services:4.3.3" />

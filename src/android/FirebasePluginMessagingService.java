@@ -3,9 +3,11 @@ package org.apache.cordova.firebase;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -147,9 +149,23 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     }
 
     if (showNotification) {
-      Intent intent = new Intent(this, OnNotificationOpenReceiver.class);
-      intent.putExtras(bundle);
-      PendingIntent pendingIntent = PendingIntent.getBroadcast(this, id.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+      // Android 12 introduced changes to the notification trampoline, disallowing activities
+      // to be started from a service or a broadcast receiver. This means that for Android 12
+      // and above we'll handle the notification in a transparent activity.
+      // The hardcoded value 31 corresponds to android.os.Build.VERSION_CODES.S which is an
+      // unknown value when building the application using MABS prior to version 8.
+      PendingIntent pendingIntent;
+
+      if (android.os.Build.VERSION.SDK_INT >= 31) {
+        Intent intent = new Intent(this, OnNotificationOpenActivity.class);
+        intent.putExtras(bundle);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        pendingIntent = PendingIntent.getActivity(this, id.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+      } else {
+        Intent intent = new Intent(this, OnNotificationOpenReceiver.class);
+        intent.putExtras(bundle);
+        pendingIntent = PendingIntent.getBroadcast(this, id.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+      }
 
       String channelId = this.getStringResource("default_notification_channel_id");
       String channelName = this.getStringResource("default_notification_channel_name");

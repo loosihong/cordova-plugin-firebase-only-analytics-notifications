@@ -127,14 +127,15 @@ function isCordovaAbove(context, version) {
 }
 
 function getAndroidTargetSdk() {
-  var projectPropertiesPath = path.join("platforms", "android", "CordovaLib", "project.properties");
+  var projectPropertiesPath = path.join("platforms", "android", "project.properties");
   if (checkIfFolderExists(projectPropertiesPath)) {
     var projectProperties = fs.readFileSync(projectPropertiesPath).toString();
+    console.log(projectProperties);
     var lookUp = "target=android-";
     var from = projectProperties.indexOf(lookUp) + lookUp.length;
     var length = projectProperties.indexOf('\n', from) - from;
     var sdk = projectProperties.substr(from, length).trim();
-    console.log('getAndroidTargetSdk', sdk);
+    console.log('sdk', sdk);
     return parseInt(sdk);
   }
 
